@@ -1,1 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MBTI 플레이 테스트</title>
+<style>
+:root{--purple:#7c3aed;--pink:#ec4899;--ink:#171321;--muted:#77718a;--bg:#fbf8ff}
+*{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif;color:var(--ink);background:linear-gradient(135deg,#faf5ff,#fff7ed 52%,#f5f3ff);min-height:100vh}
+button{font:inherit;cursor:pointer;border:0}.app{max-width:980px;margin:auto;padding:24px 18px 40px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{display:flex;align-items:center;gap:12px}.logo{font-size:38px}.brand h1{font-size:24px;margin:0}.brand p{margin:3px 0;color:var(--muted);font-size:13px}.top button{background:#fff;border:1px solid #eee7f8;padding:12px 17px;border-radius:999px;font-weight:700;box-shadow:0 5px 18px #6d28d90d}
+.hero{text-align:center;padding:42px 10px 30px}.hero h2{font-size:clamp(32px,6vw,58px);margin:0 0 12px;letter-spacing:-2px}.grad{background:linear-gradient(90deg,#7c3aed,#ec4899);-webkit-background-clip:text;color:transparent}.hero p{font-size:18px;color:#625b70}.badge{display:inline-block;background:#f0e8ff;color:#6d28d9;border-radius:999px;padding:9px 18px;font-weight:800;font-size:14px}
+.card{background:#fff;border:1px solid #eee8f5;border-radius:30px;padding:30px;box-shadow:0 20px 60px #5b21b60d}.progressRow{display:flex;justify-content:space-between;color:var(--muted);font-weight:700}.bar{height:10px;background:#eeeef2;border-radius:20px;margin:12px 0 28px;overflow:hidden}.fill{height:100%;width:10%;background:linear-gradient(90deg,#7c3aed,#ec4899);border-radius:20px;transition:.35s}
+.question{text-align:center;background:linear-gradient(135deg,#faf5ff,#fff7fb);border-radius:22px;padding:30px 18px;margin-bottom:20px}.question .emoji{font-size:45px}.question h3{font-size:clamp(22px,4vw,32px);margin:12px 0 4px}.question small{color:var(--muted)}
+.answers{display:grid;gap:13px}.answer{text-align:left;padding:19px;border:2px solid #eee7f8;border-radius:18px;background:#fff;display:flex;align-items:center;gap:15px;transition:.18s}.answer:hover{transform:translateY(-2px);border-color:#c4b5fd;box-shadow:0 10px 25px #7c3aed12}.answer.selected{border-color:#7c3aed;background:#f8f5ff}.answer .ico{font-size:30px;min-width:38px;text-align:center}.answer strong{display:block;font-size:16px}.answer span{display:block;color:var(--muted);font-size:13px;margin-top:3px}.nav{display:flex;gap:12px;margin-top:22px}.nav button{flex:1;padding:16px;border-radius:17px;font-weight:800}.prev{background:#fff;border:1px solid #e9e4ef}.next{background:linear-gradient(90deg,#7c3aed,#8b5cf6);color:white}
+.result{display:none;text-align:center}.result .type{font-size:80px}.result h2{font-size:48px;margin:4px}.result .tag{display:inline-block;padding:8px 14px;border-radius:999px;background:#f3e8ff;color:#6d28d9;font-weight:800}.result p{color:#655d70;line-height:1.7}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:25px 0}.stat{background:#faf9fc;border-radius:16px;padding:15px}.stat b{display:block;font-size:22px}.stat small{color:var(--muted)}.resultBtns{display:flex;gap:10px}.resultBtns button{flex:1;padding:15px;border-radius:15px;font-weight:800}.primary{background:#7c3aed;color:#fff}.secondary{background:#f4f0f8}
+.share{margin-top:14px;color:#6d28d9;font-weight:700;background:transparent}
+footer{text-align:center;color:#9991a7;font-size:12px;margin-top:22px}
+@media(max-width:600px){.app{padding:14px 12px 28px}.top button{display:none}.card{padding:20px;border-radius:24px}.stats{grid-template-columns:repeat(2,1fr)}.hero{padding:28px 5px}.hero p{font-size:15px}.resultBtns{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top">
+  <div class="brand"><div class="logo">🧠✨</div><div><h1>MBTI 플레이 테스트</h1><p>나를 발견하는 10가지 질문</p></div></div>
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'})">🏆 인기 테스트</button>
+</header>
 
+<section class="hero">
+  <h2>나는 <span class="grad">어떤 사람</span>일까?</h2>
+  <p>20대부터 50대까지, 일상 속 선택으로 알아보는 재미있는 MBTI</p>
+  <span class="badge">총 10문항 · 약 3분</span>
+</section>
+
+<main class="card">
+  <section id="quiz">
+    <div class="progressRow"><span id="count">질문 1 / 10</span><span id="pct">10%</span></div>
+    <div class="bar"><div class="fill" id="fill"></div></div>
+    <div class="question"><div class="emoji" id="qEmoji">☕</div><h3 id="qText"></h3><small>가장 나다운 답을 골라주세요</small></div>
+    <div class="answers" id="answers"></div>
+    <div class="nav"><button class="prev" id="prev">← 이전</button><button class="next" id="next">다음 질문 →</button></div>
+  </section>
+
+  <section class="result" id="result">
+    <div class="type" id="typeEmoji">🌟</div>
+    <div class="tag" id="typeTag"></div>
+    <h2 id="typeName"></h2>
+    <p id="typeDesc"></p>
+    <div class="stats" id="stats"></div>
+    <div class="resultBtns"><button class="primary" onclick="restart()">🔄 다시 테스트</button><button class="secondary" onclick="shareResult()">📤 결과 공유</button></div>
+    <button class="share" onclick="copyResult()">결과 문구 복사하기</button>
+  </section>
+</main>
+<footer>※ 재미로 보는 간이 MBTI 테스트입니다. 실제 MBTI 정식 검사를 대체하지 않습니다.</footer>
+</div>
+
+<script>
+const questions=[
+ {e:"☕",q:"주말에 약속이 없는 날, 나는 주로?", a:[
+  ["🏠","집에서 혼자 푹 쉰다","영화·책·게임·취미로 충전","I"],["🥳","친구에게 먼저 연락한다","사람들과 만나야 기분이 난다","E"],
+  ["🚗","혼자 새로운 곳으로 떠난다","즉흥적으로 경험을 즐긴다","E"],["📋","밀린 일과 계획을 정리한다","정리해야 마음이 편하다","J"]]},
+ {e:"💬",q:"처음 만난 사람과 대화할 때 나는?",a:[
+  ["👂","상대 이야기를 먼저 듣는다","분위기를 파악한 뒤 말한다","I"],["🗣️","내 이야기도 자연스럽게 한다","금방 친해지는 편이다","E"],
+  ["🔎","구체적인 사실이 궁금하다","현실적인 이야기를 좋아한다","S"],["💡","아이디어와 가능성을 이야기한다","상상하며 대화하는 걸 좋아한다","N"]]},
+ {e:"🎁",q:"친구가 고민을 털어놓으면 나는?",a:[
+  ["🧩","해결 방법부터 같이 찾아본다","현실적인 대안을 제시한다","T"],["❤️","일단 마음부터 공감해준다","감정을 이해하는 게 먼저다","F"],
+  ["📌","상황을 정리해서 우선순위를 잡는다","문제를 구조적으로 본다","T"],["🤗","친구가 원하는 방식에 맞춰준다","관계와 감정을 중요하게 생각한다","F"]]},
+ {e:"✈️",q:"여행을 떠난다면 더 끌리는 것은?",a:[
+  ["🗺️","동선과 맛집을 미리 정한다","계획대로 알차게 다닌다","J"],["🎒","숙소만 정하고 나머지는 즉흥적으로","그날 기분대로 움직인다","P"],
+  ["📸","유명한 곳을 빠짐없이 본다","실속 있는 여행을 좋아한다","S"],["🌌","숨은 장소와 새로운 경험을 찾는다","특별한 이야기를 만들고 싶다","N"]]},
+ {e:"💼",q:"회사에서 새로운 프로젝트를 맡았다. 나는?",a:[
+  ["📝","목표·일정·역할부터 정리한다","체계적으로 시작한다","J"],["🚀","일단 시작하고 하면서 정리한다","빠르게 움직이며 조정한다","P"],
+  ["📊","검증된 방법과 데이터를 확인한다","근거가 중요하다","S"],["🔮","새로운 방법을 먼저 떠올린다","가능성을 크게 본다","N"]]},
+ {e:"🎉",q:"모임에서 내가 가장 자주 하는 역할은?",a:[
+  ["🎤","분위기를 띄우고 사람을 연결한다","여러 사람과 자연스럽게 어울린다","E"],["🪴","편한 사람과 깊게 이야기한다","소수와 진하게 대화한다","I"],
+  ["🧭","다음에 뭘 할지 정한다","진행을 챙기는 편이다","J"],["🎈","흐름에 따라 즐긴다","정해진 것보다 자유로운 게 좋다","P"]]},
+ {e:"⚡",q:"갑자기 일정이 바뀌었다. 내 반응은?",a:[
+  ["😎","오히려 재밌는데?","새로운 상황을 즐긴다","P"],["😵","잠깐! 계획을 다시 짜야 해","예측 가능한 게 편하다","J"],
+  ["🔧","당장 가능한 방법부터 찾는다","현실적으로 해결한다","S"],["🧠","이 변화가 어떤 기회가 될지 생각한다","큰 그림부터 본다","N"]]},
+ {e:"🛍️",q:"쇼핑할 때 나는?",a:[
+  ["🧾","필요한 것만 비교해서 산다","가격·성능을 꼼꼼히 본다","T"],["💖","마음에 들면 일단 사고 본다","느낌과 취향을 따른다","F"],
+  ["🎯","살 목록을 정해두고 간다","계획적인 소비를 한다","J"],["✨","구경하다 마음에 드는 걸 발견한다","발견의 재미를 즐긴다","P"]]},
+ {e:"🌙",q:"하루를 마무리하며 가장 많이 하는 생각은?",a:[
+  ["✅","오늘 할 일을 잘 끝냈나?","완료와 정리가 중요하다","J"],["💭","내일은 뭘 해볼까?","새로운 가능성을 떠올린다","N"],
+  ["📖","오늘 있었던 일을 되짚어본다","구체적인 장면이 떠오른다","S"],["🌈","앞으로 내가 원하는 삶은 뭘까?","큰 방향과 의미를 생각한다","N"]]},
+ {e:"🎯",q:"나를 가장 잘 표현하는 말은?",a:[
+  ["🧱","믿음직하고 현실적이다","맡은 일은 끝까지 한다","S"],["💡","호기심 많고 아이디어가 넘친다","새로운 가능성을 찾는다","N"],
+  ["⚖️","논리적이고 냉정한 판단을 한다","공정성과 효율을 중시한다","T"],["💗","사람을 중요하게 생각한다","따뜻함과 조화를 중시한다","F"]]}
+];
+
+let idx=0, answers=Array(10).fill(null);
+const $=id=>document.getElementById(id);
+
+function render(){
+ const q=questions[idx]; $("count").textContent=`질문 ${idx+1} / 10`; $("pct").textContent=`${(idx+1)*10}%`; $("fill").style.width=`${(idx+1)*10}%`;
+ $("qEmoji").textContent=q.e; $("qText").textContent=q.q;
+ $("answers").innerHTML=q.a.map((x,i)=>`<button class="answer ${answers[idx]===i?'selected':''}" onclick="choose(${i})"><div class="ico">${x[0]}</div><div><strong>${String.fromCharCode(65+i)}. ${x[1]}</strong><span>${x[2]}</span></div></button>`).join("");
+ $("prev").disabled=idx===0; $("prev").style.opacity=idx===0?.45:1;
+ $("next").textContent=idx===9?"결과 보기 ✨":"다음 질문 →";
+}
+function choose(i){answers[idx]=i;render()}
+$("prev").onclick=()=>{if(idx>0){idx--;render()}};
+$("next").onclick=()=>{if(answers[idx]===null){alert("가장 나다운 답을 하나 골라주세요!");return} if(idx<9){idx++;render()}else showResult()};
+function calc(){
+ let score={E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
+ answers.forEach((ai,qi)=>{if(ai!==null)score[questions[qi].a[ai][3]]++});
+ return {score,type:(score.E>=score.I?"E":"I")+(score.S>=score.N?"S":"N")+(score.T>=score.F?"T":"F")+(score.J>=score.P?"J":"P")};
+}
+const profiles={
+ISTJ:["🧭","꼼꼼한 현실주의자","책임감과 신뢰를 중요하게 생각해요. 계획한 일을 차근차근 완성하는 힘이 있어요."],
+ISFJ:["🧸","따뜻한 수호자","주변 사람을 세심하게 챙기고, 조용히 필요한 일을 해내는 든든한 사람이에요."],
+INFJ:["🌙","통찰력 있는 조언자","사람과 세상의 의미를 깊게 생각하며, 자신만의 가치와 방향을 중요하게 여겨요."],
+INTJ:["♟️","전략적인 설계자","큰 그림을 보고 목표를 설계하는 데 강해요. 혼자 깊게 생각하는 시간도 좋아해요."],
+ISTP:["🛠️","쿨한 해결사","복잡한 상황에서도 직접 해보며 답을 찾는 실전형이에요. 자유와 효율을 좋아해요."],
+ISFP:["🎨","감성적인 탐험가","자신의 취향과 감각을 소중히 여기며, 편안하고 진솔한 관계를 선호해요."],
+INFP:["🌿","상상력 가득한 이상가","나만의 가치와 감성을 중요하게 생각해요. 좋아하는 것에는 놀라운 몰입력을 보여요."],
+INTP:["🔬","호기심 많은 분석가","왜 그런지 끝까지 파고드는 걸 좋아해요. 독창적인 아이디어와 논리적인 사고가 강점이에요."],
+ESTP:["🏄","에너지 넘치는 실행가","일단 해보고 경험으로 배우는 타입이에요. 순간의 기회를 잡는 순발력이 뛰어나요."],
+ESFP:["🎉","즐거운 분위기 메이커","사람들과 함께 현재를 즐기는 데 능해요. 밝고 따뜻한 에너지로 주변을 즐겁게 해요."],
+ENFP:["🚀","아이디어 폭발형 모험가","새로운 가능성을 발견하는 걸 좋아하고, 사람과 아이디어를 연결하는 데 강해요."],
+ENTP:["💡","재치 있는 아이디어 뱅크","새로운 관점과 토론을 즐겨요. 기존 방식에 '왜?'라고 묻고 더 좋은 방법을 찾아요."],
+ESTJ:["📣","똑부러진 리더","목표를 명확히 하고 사람과 일을 효율적으로 움직이는 데 강해요. 실행력이 좋아요."],
+ESFJ:["🤝","친화력 좋은 케어러","사람들의 필요를 잘 살피고 관계를 따뜻하게 만드는 능력이 뛰어나요."],
+ENFJ:["🌟","사람을 성장시키는 리더","사람의 가능성을 발견하고 함께 성장하도록 이끄는 힘이 있어요."],
+ENTJ:["👑","목표지향 전략가","명확한 목표를 세우고 자원을 모아 결과를 만들어내는 데 강한 타입이에요."]
+};
+function showResult(){
+ const {score,type}=calc(), p=profiles[type]; $("quiz").style.display="none"; $("result").style.display="block";
+ $("typeEmoji").textContent=p[0];$("typeTag").textContent=type;$("typeName").textContent=p[1];$("typeDesc").textContent=p[2];
+ $("stats").innerHTML=[["E/I",score.E>score.I?"E":"I"],["S/N",score.S>score.N?"S":"N"],["T/F",score.T>score.F?"T":"F"],["J/P",score.J>score.P?"J":"P"]].map(x=>`<div class="stat"><b>${x[1]}</b><small>${x[0]}</small></div>`).join("");
+ window.scrollTo({top:0,behavior:"smooth"});
+ localStorage.setItem("lastMBTI",type);
+}
+function restart(){idx=0;answers=Array(10).fill(null);$("result").style.display="none";$("quiz").style.display="block";render();window.scrollTo({top:0,behavior:"smooth"})}
+function copyResult(){const type=calc().type;const text=`나의 MBTI 플레이 테스트 결과는 ${type}!\n${profiles[type][1]}\n나도 3분 만에 테스트해보기 ✨`;navigator.clipboard?.writeText(text).then(()=>alert("결과 문구가 복사됐어요!"))}
+function shareResult(){const type=calc().type;if(navigator.share) navigator.share({title:"MBTI 플레이 테스트 결과",text:`나는 ${type} · ${profiles[type][1]}!`});else copyResult()}
+render();
+</script>
+</body>
+</html>
